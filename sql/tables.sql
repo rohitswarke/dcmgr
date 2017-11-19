@@ -1,0 +1,47 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    login VARCHAR NOT NULL UNIQUE,
+    name VARCHAR NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_updated DATETIME
+);
+
+CREATE TABLE IF NOT EXISTS racks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR NOT NULL UNIQUE,
+    description TEXT DEFAULT NULL,
+    total_slots INTEGER NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_updated DATETIME 
+);
+
+CREATE TABLE IF NOT EXISTS servers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    rack_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL UNIQUE,
+    description TEXT DEFAULT NULL,
+    total_cpu INTEGER NOT NULL,
+    used_cpu INTEGER NOT NULL DEFAULT 0,
+    total_memory INTEGER NOT NULL,
+    used_memory INTEGER NOT NULL DEFAULT 0,
+    total_disk INTEGER NOT NULL,
+    used_disk INTEGER NOT NULL DEFAULT 0,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_updated DATETIME,
+    FOREIGN KEY(rack_id) REFERENCES racks(id)
+);
+
+CREATE TABLE IF NOT EXISTS instances (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    server_id INTEGER NOT NULL,
+    owner_id INTEGER NOT NULL,
+    name VARCHAR NOT NULL UNIQUE,
+    description TEXT DEFAULT NULL,
+    cpu INTEGER NOT NULL,
+    memory INTEGER NOT NULL,
+    disk INTEGER NOT NULL,
+    created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    last_updated DATETIME,
+    FOREIGN KEY(server_id) REFERENCES servers(id),
+    FOREIGN KEY(owner_id) REFERENCES users(id)    
+);
