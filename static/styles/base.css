@@ -1,0 +1,56 @@
+.entity-list {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.entity-list td, .entity-list th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.entity-list tr:nth-child(even){background-color: #f2f2f2;}
+
+.entity-list tr:hover {background-color: #ddd;}
+
+.entity-list th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.details-form label{
+    width: 150px;
+    padding: 12px 5px;
+    margin: 2px 0;
+    display: inline-block;
+}
+
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+a:link, a:visited {
+    background-color: #60c460;
+    color: white;
+    padding: 14px 25px;
+    text-align: center; 
+    text-decoration: none;
+    display: inline-block;
+}
+
+a:hover, a:active {
+    background-color: gray;
+    color:black;
+}

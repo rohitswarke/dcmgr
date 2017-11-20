@@ -84,7 +84,7 @@ def manipulate_rack(args):
         result = con.modify_rack(id=args.id,**mod_args)
     if not isinstance(result,list):
        result = [result]
-    
+ 
     return result
 
 def manipulate_instance(args):

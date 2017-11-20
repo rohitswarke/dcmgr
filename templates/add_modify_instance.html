@@ -1,0 +1,83 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	{% if action == 'move' %}
+	<h2>Move Instance</h2>
+	{%else%}
+	<h2>Instance</h2>
+	{%endif%}
+	<form action="{{url_for('manipulate_instance')}}" method="POST" class="details-form">
+			{%if item.id is defined %}
+			<label>ID</label>
+			<input type="text" name="id" readonly="true" value={{item.id}}></input><br>
+			<label>Date Created</label>
+			<input type="text" name="created_date" readonly="true" value="{{item.created_date}}"></input><br>
+			{%endif%}
+			<label>Name</label>
+			<input type="text" name="name" value="{{item.name}}"></input><br>
+			<label>Server Name:</label>
+			{% if action == 'move' %}
+			Current:
+			{% for s in servers %}
+				{%if s.id == item.server_id %}
+				<input type="text" name="server_id" value="{{item.server_id}}" readonly="true" hidden="true">
+				<input type="text" name="server_name" value="{{s.name}}" readonly="true">
+				<input type="text" name="action" value="move" hidden="true">
+				{% endif %}
+			{% endfor %}
+			<label>Move To:</label>
+			<select name="dest_server_id">
+				{% for s in servers %}
+					{% if s.id != item.server_id %}
+					<option value="{{s.id}}" {%if s.id == item.server_id %}selected{%endif%}>{{s.name}}</option>
+					{% endif %}
+				{% endfor %}
+			</select><br>
+			{% else %}
+			<select name="server_id">
+				{% for s in servers %}
+					<option value="{{s.id}}" {%if s.id == item.server_id %}selected{%endif%}>{{s.name}}</option>
+				{% endfor %}
+			</select><br>
+			{% endif %}
+
+			<label>Owner Name</label>
+			<select name="owner_id">
+				{% for u in users %}
+					<option value="{{u.id}}" {%if u.id == item.owner_id %}selected{%endif%}>{{u.login}}</option>
+				{% endfor %}
+			</select><br>
+			<label>CPU</label>
+			<input type="number" name="cpu" value="{{item.cpu}}"></input><br>
+			<label>Memory</label>
+			<input type="number" name="memory" value="{{item.memory}}"></input><br>
+			<label>Disk</label>
+			<input type="number" name="disk" value="{{item.disk}}"></input><br>
+			<label>Description</label>
+			<input type="textarea" name="description" value="{{item.description}}"></input><br>
+			{%if item.id is defined %}
+			<label>Last Updated</label>
+			<input type="" name="last_updated" readonly="true" value="{{item.last_updated}}"></input><br>
+			{%endif%}
+			{% if action == 'move' and item.id is defined %}
+				<input type="text" name="action" value="move" hidden="true">
+				<input type="submit" value="Move"><br>
+			{%elif item.id is not defined %}
+				<input type="submit" value="Submit"><br>
+			{%else%}
+				<input type="submit" value="Submit" hidden="true"><br>
+			{%endif%}
+	</form>
+	<br>
+	{% if action == 'move' %}
+	<h4><a href="{{url_for('manipulate_instance', id=item.id)}}">Cancel move</a></h4>
+	{%else%}
+	{%if item.id is defined %}
+	<h4><a href="{{url_for('manipulate_instance', id=item.id, action='move')}}">Move this instance</a></h4>
+	{%endif%}
+	{%endif%}
+	<h4><a href="{{url_for('manipulate_instance')}}">Add a new instance</a></h4>
+
+	<h4><a href="{{url_for('list_entity',entity='instance')}}">View all instances</a></h4>
+{% endblock %}

@@ -1,0 +1,39 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	<h2>Current Users</h2>
+	<table border=1 class="user entity-list">
+		<tr>
+			<th>ID</th>
+			<th>Date Created</th>
+			<th>Login</th>
+			<th>Name</th>
+			<th>Options</th>
+		</tr>
+		{% for item in items %}
+		<tr>
+			<td>{{item.id}}</td>
+			<td>{{item.created_date}}</td>
+			<td>{{item.login}}</td>
+			<td>{{item.name}}</td>
+
+			<td>
+				<span>
+					<form action="{{url_for('manipulate_user')}}" method="get">
+						<input type="text" name="id" value="{{item.id}}" hidden="true">
+  						<button type="submit" name="action" value="view" class="btn-link">View</button>
+					</form>
+				</span>
+				<span>
+					<form action="{{url_for('delete_entity',id=item.id,entity='user')}}" method="post">
+  						<button type="submit" name="DELETE" value="delete" class="btn-link">DELETE</button>
+					</form>
+				</span>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<br>
+	<h4><a href="{{url_for('manipulate_user')}}">Add a new user</a></h4>
+{% endblock %}

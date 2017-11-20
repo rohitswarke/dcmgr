@@ -1,0 +1,59 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	<h2>Current Instances</h2>
+	<table border=1 class="instance entity-list">
+		<tr>
+			<th>ID</th>
+			<th>Date Created</th>
+			<th>ServerID</th>
+			<th>Owner</th>
+			<th>Name</th>
+			<th>CPU Usage</th>
+			<th>Memory Usage (MB)</th>
+			<th>Disk Usage (MB)</th>
+			<th>Description</th>
+			<th>Last Updated</th>
+			<th>Options</th>
+			</tr>
+		{% for item in items %}
+		<tr>
+			<td>{{item.id}}</td>
+			<td>{{item.created_date}}</td>
+			<td>{{item.server_id}}</td>
+			<td>{{item.owner.login}}</td>
+			<td>{{item.name}}</td>
+			<td>{{item.cpu}}</td>
+			<td>{{item.memory}}</td>
+			<td>{{item.disk}}</td>
+			<td>{{item.description}}</td>
+			<td>{{item.last_updated}}</td>
+			<td>
+				<span>
+					<form action="{{url_for('manipulate_instance')}}" method="get">
+						<input type="text" name="id" value="{{item.id}}" hidden="true">
+  						<button type="submit" name="action" value="view" class="btn-link">VIEW</button>
+					</form>
+				</span>
+				<span>				
+				<span>
+					<form action="{{url_for('manipulate_instance')}}" method="get">
+						<input type="text" name="id" value="{{item.id}}" hidden="true">
+  						<button type="submit" name="action" value="move" class="btn-link">MOVE</button>
+					</form>
+				</span>
+				<span>
+					<form action="{{url_for('delete_entity',id=item.id,entity='instance')}}" method="post">
+  						<button type="submit" name="action" value="delete" class="btn-link">DELETE</button>
+					</form>
+				</span>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<br>
+	<h4><a href="{{url_for('manipulate_instance')}}">Add a new instance</a></h4>
+</body>
+</html>	
+{%endblock%}

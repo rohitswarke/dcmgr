@@ -1,0 +1,39 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	<h2>Server</h2>
+	<form action="{{url_for('manipulate_server')}}" method="POST" class="details-form">
+			{%if item.id is defined %}
+			<label>ID</label>
+			<input type="text" name="id" readonly="true" value={{item.id}}></input><br>
+			<label>Date Created</label>
+			<input type="text" name="created_date" readonly="true" value="{{item.created_date}}"></input><br>
+			{%endif%}
+			<label>Name</label>
+			<input type="text" name="name" value="{{item.name}}"></input><br>
+			<label>Rack Name</label>
+			<select name="rack_name">
+				{% for r in racks %}
+					<option value="{{r.name}}">{{r.name}} ({{r.total_slots - r.num_servers}}/{{r.total_slots}} free)</option>
+				{% endfor %}
+			</select><br>
+			<label>CPU</label>
+			<input type="number" name="cpu" value="{{item.total_cpu}}"></input><br>
+			<label>Memory</label>
+			<input type="number" name="memory" value="{{item.total_memory}}"></input><br>
+			<label>Disk</label>
+			<input type="number" name="disk" value="{{item.total_disk}}"></input><br>
+			<label>Description</label>
+			<input type="textarea" name="description" value="{{item.description}}"></input><br>
+			{%if item.id is defined %}
+			<label>Last Updated</label>
+			<input type="" name="last_updated" readonly="true" value="{{item.last_updated}}"></input><br>
+			{%else%}
+			<input type="submit" value="Submit"><br>
+			{%endif%}
+	</form>
+	<br>
+	<h4><a href="{{url_for('manipulate_server')}}">Add a new server</a></h4>
+	<h4><a href="{{url_for('list_entity',entity='server')}}">View all servers</a></h4>
+{%endblock%}

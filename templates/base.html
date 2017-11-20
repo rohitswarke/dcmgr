@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/base.css') }}">
+
+	{% block title %}
+	<title>{%if title %} {{title}} {%else%} DC Manager {%endif%}</title>
+	{% endblock %}
+</head>
+<body>
+    <div id="error">{% block error %}
+    	{%if error is defined and error is not none %}
+    	<h4>ERROR!</h4><br>
+    	{{error}}
+    	{%endif%}
+    {% endblock %}</div>
+
+
+
+    <div id="content">{% block content %}{% endblock %}</div>
+
+    <br><br><hr>
+    <table width='100%'>
+    	<tr>
+    		<td align='center' padding="10px"><a href="{{url_for('list_entity', entity='user')}}">Users</a></td>
+     		<td align='center' padding="10px"><a href="{{url_for('list_entity', entity='rack')}}">Racks</a></td>
+    		<td align='center' padding="10px"><a href="{{url_for('list_entity', entity='server')}}">Servers</a></td>
+    		<td align='center' padding="10px"><a href="{{url_for('list_entity', entity='instance')}}">Instances</a></td>
+
+    	</tr>
+    </table>
+</body>
+</html>

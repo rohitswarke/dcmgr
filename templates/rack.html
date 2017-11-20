@@ -1,0 +1,42 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	<h2>Current Racks</h2>
+	<table border=1 class="rack entity-list">
+		<tr>
+			<th>ID</th>
+			<th>Date Created</th>
+			<th>Name</th>
+			<th>Occupancy</th>
+			<th>Description</th>
+			<th>Last Updated</th>
+			<th>Options</th>
+			</tr>
+		{% for item in items %}
+		<tr>
+			<td>{{item.id}}</td>
+			<td>{{item.created_date}}</td>
+			<td>{{item.name}}</td>
+			<td>{{item.num_servers}}/{{item.total_slots}}</td>
+			<td>{{item.description}}</td>
+			<td>{{item.last_updated}}</td>
+			<td>
+				<span>
+					<form action="{{url_for('manipulate_rack')}}" method="get">
+						<input type="text" name="id" value="{{item.id}}" hidden="true">
+  						<button type="submit" name="action" value="edit" class="btn-link">View/Edit</button>
+					</form>
+				</span>
+				<span>
+					<form action="{{url_for('delete_entity',id=item.id,entity='rack')}}" method="post">
+  						<button type="submit" name="DELETE" value="delete" class="btn-link">DELETE</button>
+					</form>
+				</span>
+			</td>
+		</tr>
+	{% endfor %}
+	</table>
+	<br>
+	<h4><a href="{{url_for('manipulate_rack')}}">Add a new rack</a></h4>
+{%endblock%}

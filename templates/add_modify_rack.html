@@ -1,0 +1,29 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	<h2>Rack</h2>
+	<form action="{{url_for('manipulate_rack')}}" method="POST" class="details-form">
+			{%if item.id is defined %}
+			<label>ID</label>
+			<input type="text" name="id" readonly="true" value={{item.id}}></input><br>
+			<label>Date Created</label>
+			<input type="text" name="created_date" readonly="true" value="{{item.created_date}}"></input><br>
+			{%endif%}
+			<label>Name</label>
+			<input type="text" name="name" value="{{item.name}}"></input><br>
+			<label>Slots</label>
+			<input type="number" name="total_slots" value="{{item.total_slots}}"></input><br>
+			<label>Description</label>
+			<input type="textarea" name="description" value="{{item.description}}"></input><br>
+			{%if item.id is defined %}
+			<label>Last Updated</label>
+			<input type="" name="last_updated" readonly="true" value="{{item.last_updated}}"></input><br>
+			{%endif%}
+			<input type="submit" value="Submit"><br>
+
+	</form>
+	<br>
+	<h4><a href="{{url_for('manipulate_rack')}}">Add a new rack</a></h4>
+	<h4><a href="{{url_for('list_entity',entity='rack')}}">View all racks</a></h4>
+{%endblock%}

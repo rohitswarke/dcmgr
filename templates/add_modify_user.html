@@ -1,0 +1,28 @@
+{%extends "base.html" %}
+{% block title %}
+{% endblock %}
+{% block content %}
+	<h2>Server</h2>
+	<form action="{{url_for('manipulate_user')}}" method="POST" class="details-form">
+			{%if item.id is defined %}
+			<label>ID</label>
+			<input type="text" name="id" readonly="true" value={{item.id}}></input><br>
+			<label>Date Created</label>
+			<input type="text" name="created_date" readonly="true" value="{{item.created_date}}"></input><br>
+			{%endif%}
+			<label>Login</label>
+			<input type="text" name="login" value="{{item.login}}"></input><br>
+			<label>Name</label>
+			<input type="text" name="name" value="{{item.name}}"></input><br>
+			{%if item.id is defined %}
+			<label>Last Updated</label>
+			<input type="" name="last_updated" readonly="true" value="{{item.last_updated}}"></input><br>
+			{%else%}
+			<input type="submit" value="Submit"><br>
+			{%endif%}
+	</form>
+	<br>
+	<h4><a href="{{url_for('manipulate_user')}}">Add a new user</a></h4>
+	<h4><a href="{{url_for('list_entity',entity='user')}}">View all users</a></h4>
+
+{%endblock%}

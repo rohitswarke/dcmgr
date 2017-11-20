@@ -54,6 +54,7 @@ class Controller(object):
         return rows
 
     def list_user(self,limit=None):
+        query = "select u.*,ifnull(i.num_instances,0) as num_instances from users u left join (select owner_id,count(*) as num_instances from instances  group by owner_id) i on i.owner_id=u.id"        
         query = "select * from users"
         return self.db_select(query)
 
@@ -74,14 +75,14 @@ class Controller(object):
         user = self.get_user(id=id,login=login)
         if not user:
             raise Exception("User not found:%s")
-        count_query = "select count(*) as count from users where id=?"
+        count_query = "select count(*) as count from instances  where owner_id=?"
         result = self.db_select(count_query, (user['id'],))
         if result[0]['count'] > 0:
             raise Exception("Cannot delete as user owns instances")        
         self.dbh.execute("delete from users where id=?",  (user['id'],))
         self.dbh.commit()
         return user
-    
+
     def add_user(self,login=None,name=None):
         id = None
         try:
@@ -96,7 +97,7 @@ class Controller(object):
         return self.get_user(id=id)
 
     def list_rack(self,limit=None):
-        query = "select r.*,s.num_servers from racks r join (select rack_id,count(*) as num_servers from servers  group by rack_id) s where s.rack_id=r.id"
+        query = "select r.*,ifnull(s.num_servers,0) as num_servers from racks r left join (select rack_id,count(*) as num_servers from servers  group by rack_id) s on s.rack_id=r.id"
         return self.db_select(query)
 
     def get_rack(self, id=None, name=None):
@@ -105,7 +106,7 @@ class Controller(object):
             if not id_result:
                 return None
             id = id_result[0]['id']
-        query = ("select r.*,s.num_servers from racks r join (select rack_id,count(*) as num_servers from servers where rack_id=? group by rack_id) s where s.rack_id=r.id and r.id=?", (id,id))
+        query = ("select r.*,ifnull(s.num_servers,0) as num_servers from racks r left join (select rack_id,count(*) as num_servers from servers where rack_id=? group by rack_id) s on s.rack_id=r.id where r.id=?", (id,id))
         rows = self.db_select(query[0],query[1])
         logger.debug("Found %d racks" % len(rows))
         return rows[0] if rows else None
@@ -115,7 +116,8 @@ class Controller(object):
         try:
             c = self.dbh.cursor()
             c.execute("INSERT INTO racks(name,total_slots,description,last_updated) values(?,?,?,?)", (name,total_slots,desc,now()))
-            id = c.lastrowid            
+            id = c.lastrowid
+            logger.info("Rack created with id:%s" % id)
             self.dbh.commit()
         except Exception, e:
             logger.error("Error creating rack:%s", e)
@@ -124,17 +126,19 @@ class Controller(object):
 
     def delete_rack(self,id=None,name=None):
         rack = self.get_rack(id=id,name=name)
+
         if not rack:
             raise Exception("Rack not found:%s")
 
-        rack_occupancy_query="select count(*) from servers where rack_id=?"
-        rack_occupancy = self.db_select(rack_occupancy_query,(rack['id']))
+        rack_occupancy_query="select count(*) as count from servers where rack_id=?"
+        rack_occupancy = self.db_select(rack_occupancy_query,(rack['id'],))
         
         if rack_occupancy[0]['count'] > 0:
-            raise Exception("Cannot delete rack as it has %s servers" % rack_occupancy['0']['count'])
+            raise Exception("Cannot delete rack as it has %s servers" % rack_occupancy[0]['count'])
         
         self.dbh.execute("delete from racks where id=?",  (rack['id'],))
         self.dbh.commit()
+
         return rack
 
     def close(self):
@@ -155,7 +159,7 @@ class Controller(object):
         return rows[0] if rows else None
 
     def list_server(self,limit=None):
-        query = "select * from servers"
+        query = "select s.*,ifnull(i.num_instances,0) as num_instances from servers s left join (select server_id,count(*) as num_instances from instances  group by server_id) i on s.id=i.server_id"
         return self.db_select(query)
 
     def add_server(self,name=None,cpu=None,memory=None,disk=None,rack_id=None,rack_name=None,desc=None):
@@ -187,7 +191,7 @@ class Controller(object):
         if not server:
             raise Exception("Server not found!")
         instance_count_query = "select count(*) as count from instances where server_id=?"
-        instance_count = self.db_select(instance_count_query)
+        instance_count = self.db_select(instance_count_query,(id,))
         if instance_count[0]['count'] > 0:
             raise Exception("Cannot delete the server as it has %d instances" % instance_count[0]['count'])
         try:
@@ -272,11 +276,12 @@ class Controller(object):
             raise Exception("instance not found!")
         try:
             server = self.get_server(instance['server_id'])
-            del_query = ("delete from instances where id=?",(server['id'],))
-            update_query = ("update servers set used_cpu=?,used_memory=?,used_disk=? where id=?",
+            del_query = ("delete from instances where id=?",(instance['id'],))
+            update_query = ("update servers set used_cpu=?,used_memory=?,used_disk=?,last_updated=? where id=?",
                             (server['used_cpu']-instance['cpu'],
                              server['used_memory']-instance['memory'],
                              server['used_disk']-instance['disk'],
+                             now(),
                              server['id']))
             
             c = self.dbh.cursor()
@@ -308,18 +313,20 @@ class Controller(object):
             raise Exception("Cannot move instance:%s" % ",".join(check_result))
 
         try:
-            move_query = ("update instances set server_id=? where id=?",(dest_server['id'],instance['id']))
+            move_query = ("update instances set server_id=?,last_updated=? where id=?",(dest_server['id'],now(),instance['id']))
             
-            update_query1 = ("update servers set used_cpu=?,used_memory=?,used_disk=? where id=?",
+            update_query1 = ("update servers set used_cpu=?,used_memory=?,used_disk=?,last_updated=? where id=?",
                              (src_server['used_cpu']-instance['cpu'],
                               src_server['used_memory']-instance['memory'],
                               src_server['used_disk']-instance['disk'],
+                              now(),
                               src_server['id']))
             
-            update_query2 = ("update servers set used_cpu=?,used_memory=?,used_disk=? where id=?",
+            update_query2 = ("update servers set used_cpu=?,used_memory=?,used_disk=?,last_updated=? where id=?",
                              (dest_server['used_cpu']+instance['cpu'],
                               dest_server['used_memory']+instance['memory'],
                               dest_server['used_disk']+instance['disk'],
+                              now(),
                               dest_server['id']))
             
             c = self.dbh.cursor()
