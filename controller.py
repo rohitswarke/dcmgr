@@ -1,5 +1,3 @@
-#!/usr/bin/env python2.7
-
 import sqlite3
 from datetime import datetime
 import logging
@@ -49,7 +47,7 @@ class Controller(object):
         if args is None: args = tuple()
         result = c.execute(query,args)
         columns = [i[0] for i in  c.description]
-        rows = [dict(zip(columns,row)) for row in c.fetchall()]
+        rows = [dict(list(zip(columns,row))) for row in c.fetchall()]
         logger.debug("%d rows found", len(rows))
         return rows
 
@@ -91,7 +89,7 @@ class Controller(object):
             self.dbh.commit()
             id = c.lastrowid
             
-        except Exception, e:
+        except Exception as e:
             logger.error("Error creating user:%s", e)
             raise e
         return self.get_user(id=id)
@@ -119,7 +117,7 @@ class Controller(object):
             id = c.lastrowid
             logger.info("Rack created with id:%s" % id)
             self.dbh.commit()
-        except Exception, e:
+        except Exception as e:
             logger.error("Error creating rack:%s", e)
             raise e
         return self.get_rack(id=id)
@@ -180,7 +178,7 @@ class Controller(object):
             id = c.lastrowid
             self.dbh.commit()
 
-        except Exception, e:
+        except Exception as e:
             self.dbh.rollback()
             logger.error("Could not add server to rack")
             raise e        
@@ -199,7 +197,7 @@ class Controller(object):
             c = self.dbh.cursor()
             c.execute(del_query[0],del_query[1])
             self.dbh.commit()
-        except Exception, e:
+        except Exception as e:
             self.dbh.rollback()
             logger.error("Error deleting server:%s", e)
             raise Exception("Could not delete server:%s", e)
@@ -263,7 +261,7 @@ class Controller(object):
             id = c.lastrowid
             c.execute(update_query[0],update_query[1])
             self.dbh.commit()
-        except Exception, e:
+        except Exception as e:
             self.dbh.rollback()
             logger.error("Could not add server to rack")
             raise e
@@ -288,7 +286,7 @@ class Controller(object):
             c.execute(del_query[0],del_query[1])
             c.execute(update_query[0],update_query[1])
             self.dbh.commit()
-        except Exception, e:
+        except Exception as e:
             self.dbh.rollback()
             logger.error("Error deleting server:%s", e)
             raise Exception("Could not delete server:%s", e)
@@ -334,7 +332,7 @@ class Controller(object):
             c.execute(update_query1[0],update_query1[1])
             c.execute(update_query2[0],update_query2[1])
             self.dbh.commit()
-        except Exception, e:
+        except Exception as e:
             raise Exception("Unable to move instance:%s" % instance['id'])
         return self.get_instance(instance['id'])
 
@@ -345,11 +343,11 @@ class Controller(object):
         
         editable_fields = ['name','description','total_slots']
 
-        for k in kwargs.keys():
+        for k in list(kwargs.keys()):
             if k not in editable_fields:
                 raise Exception("Invalid field for editing:%s" % k)
         kwargs['last_updated'] = now()    
-        update_fields = [k for k,v in kwargs.iteritems() if v is not None]
+        update_fields = [k for k,v in kwargs.items() if v is not None]
         if not update_fields:
             raise Exception("Nothing to modify")
         if 'total_slots' in update_fields:
@@ -362,8 +360,8 @@ class Controller(object):
         try:
             self.dbh.execute(query,args)
             self.dbh.commit()
-        except Exception,e:
+        except Exception as e:
             raise Exception("Cannot modify rack with id:%s" % id)
         
-        print query,args
+        print(query,args)
         return self.get_rack(id)

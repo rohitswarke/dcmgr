@@ -1,5 +1,4 @@
-#!/usr/bin/env python2.7
-
+#!/usr/local/bin/python
 
 import argparse
 import logging
@@ -23,20 +22,20 @@ entity_column_map = {
    'instance': ['id','created_date','server_id','owner_id','name','cpu','memory','disk','description','last_updated']
    }
 
-def printTable(myDict, colList=None):
-   if not colList: colList = list(myDict[0].keys() if myDict else [])
+def print_table(myDict, colList=None):
+   if not colList: colList = list(list(myDict[0].keys()) if myDict else [])
    myList = [colList] # 1st row = header
    for item in myDict: myList.append([str(item[col] if item[col] is not None else '') for col in colList])
-   colSize = [max(map(len,col)) for col in zip(*myList)]
+   colSize = [max(list(map(len,col))) for col in zip(*myList)]
    formatStr = ' | '.join(["{{:<{}}}".format(i) for i in colSize])
    myList.insert(1, ['-' * i for i in colSize]) # Seperating line
-   for item in myList: print(formatStr.format(*item))
+   for item in myList: print((formatStr.format(*item)))
 
 def display_result(records=None,columns=None,header=None,footer=None):
-    if header: print header
-    printTable(records,colList=columns)
-    print "\n=============================\n"
-    if footer: print footer
+    if header: print(header)
+    print_table(records,colList=columns)
+    print("\n=============================\n")
+    if footer: print(footer)
 
 def manipulate_user(args):
     if args.action == 'add':
@@ -80,7 +79,7 @@ def manipulate_rack(args):
     elif args.action == 'list':
         result = con.list_rack()
     elif args.action == 'modify':
-        mod_args = {k:v for k,v in vars(args).iteritems() if k in ['name','description','total_slots']}
+        mod_args = {k:v for k,v in vars(args).items() if k in ['name','description','total_slots']}
         result = con.modify_rack(id=args.id,**mod_args)
     if not isinstance(result,list):
        result = [result]
@@ -260,7 +259,7 @@ if __name__ == "__main__":
     try:
         result = args.func(args)
         display_result(result,columns=entity_column_map[args.entity],footer="%s %d %ss" % (args.action,len(result),args.entity))
-    except Exception, e:
-        print "ERROR:%s" % e
+    except Exception as e:
+        print("ERROR:%s" % e)
         if args.debug:
-           print >> sys.stderr, traceback.format_exc()
+           print(traceback.format_exc(), file=sys.stderr)

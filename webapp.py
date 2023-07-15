@@ -1,5 +1,3 @@
-#!/usr/bin/env python2.7
-
 from flask import Flask,render_template,request,redirect,url_for
 
 import controller
@@ -25,7 +23,7 @@ def delete_entity(entity,id):
         return render_template("error.html", error="invalid entity:%s" % entity)
     try:
         result = func(id=id)
-    except Exception, e:
+    except Exception as e:
         return render_template("error.html", error=str(e))
     return redirect(url_for('list_entity',entity=entity))
 
@@ -43,14 +41,14 @@ def manipulate_rack():
         desc = desc if desc else None
         try:
             if not id:
-                print "CREATE NEW", str((id,name,slots,desc))
+                print("CREATE NEW", str((id,name,slots,desc)))
                 result = con.add_rack(name=name,total_slots=slots,desc=desc)
                 id = result['id']
             else:
                 result = con.modify_rack(id=id,total_slots=slots,description=desc,name=name)
             con.close()
             return redirect(url_for('manipulate_rack',id=id))
-        except Exception, e:
+        except Exception as e:
             return render_template("error.html",error=str(e))
     item = con.get_rack(id=id)
     con.close()
@@ -82,7 +80,7 @@ def manipulate_server():
             else:
                 result = None
             return redirect(url_for('manipulate_server',id=id))
-        except Exception, e:
+        except Exception as e:
             return render_template("error.html", error=str(e))
     item = con.get_server(id=id)
     if not item and id:
@@ -114,7 +112,7 @@ def manipulate_instance():
             result = con.add_instance(name=name,cpu=cpu,memory=memory,disk=disk,server_id=server_id,owner_id=owner_id,desc=desc)
             id = result['id']
             return redirect(url_for('manipulate_instance',id=id))
-        except Exception, e:
+        except Exception as e:
             return render_template("error.html", error=str(e))
     elif request.method=='POST' and id and action == 'move':
         server_id = get_form_input('server_id')
@@ -122,7 +120,7 @@ def manipulate_instance():
         try:
             result = con.move_instance(id=id,dest_server_id=dest_server_id)
             return redirect(url_for('manipulate_instance',id=id))
-        except Exception, e:
+        except Exception as e:
             return render_template("error.html", error=str(e))
 
     item = con.get_instance(id=id)
@@ -151,7 +149,7 @@ def manipulate_user():
                 result = None
             con.close()
             return redirect(url_for('manipulate_user',id=id))
-        except Exception, e:
+        except Exception as e:
             return render_template("error.html", error=str(e))
     item = con.get_user(id=id)
     con.close()
